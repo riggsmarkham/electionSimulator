@@ -60,3 +60,34 @@ candidates for example), so that would definitely complicate things.
 How do we even randomize things at all for the distributions-on-a-field model?
 
 I'll get to how this would work for each electoral system later.
+
+
+* * *
+
+
+Current To-Do Lists
+
+Algorithmic steps here:
+
+[X] 1. Initial FPTP-only prototype w/ normal polls
+[ ] 2. Model based on preference lists to do FPTP and IRV
+[ ] 3. Modify #2 to work for approval as well
+[ ] 4. Model based on pairs to do Condorcet
+[ ] 5. 1D Voronoi model for FPTP
+[ ] 6. ND model
+[ ] 7. Modify Voronoi to fit IRV, Approval, and Condorcet
+[ ] 8. Switch to distribution-on-a-field model
+
+Research steps here:
+
+[ ] 1. Make sure error calculation is correct
+[ ] 2. Find better distribution that normal distribution
+[ ] 3. Figure out how to integrate this algorithm with my website
+[ ] 4. Continue reading literature for proper ideological modelling
+
+GUI steps here:
+
+[ ] 1. Get host for riggsmarkham.com
+[ ] 2. Plug algorithm into website code
+[ ] 3. "Formatting"
+[ ] 4. Figure out how to present 2D and 3D representations of field models
