@@ -1,0 +1,62 @@
+So, currently I just have plurality elections simulated using the simplest possible format:
+  Polling numbers with expected error extrapolated from the sample size of the poll
+I need to do more research to figure out if my calculations were correct for the error.
+I also need to look at different distributions and try to find a better one than the normal distribution.
+
+At the moment, I'm pulling data from files.
+(I probably don't need to put the number of things at the top of the file)
+(I can also probably pull the data and then close the file instead of constantly reading it)
+I don't know if that's better than hardcoding or command line though for the time being.
+Eventually, I want to do it via GUI on a webpage.
+
+At the moment, the plan is to include FPTP, IRV, Approval, and some sort of Condorcet method, but to do
+those, I need a more complex way to model voters and their choices.
+I've been thinking that I want to allow people to use a variety of options here; so some could be purely
+ideological scores and some purely polling, but mostly a mix.
+I'll have to read more of the literature, but my main plan is to create an ideology model.
+The user will place candidates on the ideological chart (representing voter's perceptions of them).
+Then, somehow, I'll create a distribution of voters on that ideological spectrum.
+(Now this model could be 1D, 2D, or ND, but what shape? a square probably, but maybe a circle?)
+
+One idea would be a random distribution, but depending on the distribution, it either:
+  Hews too closely to median voter theory
+  Doesn't model voters well at all (the extremes would have more voters than the middle)
+I could use a random distribution and then place the candidates in places that fit the polling, but that
+seems rather arbitrary; it might be an interesting idea though (machine learning for clustering perhaps?)
+
+Another idea for how to do this would be to use polling data and a Voronoi diagram essentially.
+The areas would be a Voronoi diagram where the candidates' positions are the points.
+(And their region of the diagram is the part that's closer to the point than any other)
+And then, based on polling data, each region would be "extruded" to match the overall support.
+For example:
+  If Yang represents an ideological position that covers 30% of the chart better than anyone else.
+  And he is polling at 36%.
+  So, starting with each region having a density of 1, since he is polling 20% better than his
+  ideological positioning would suggest, his area would have a density of 1.2.
+  So, even though he is only the closest person to 30% of the chart, he is closest to 36% of the voters.
+  And consequently (since he's polling at 36%), some other candidates will have a density less than 1.0.
+(Do we want a way to see this shape for a 1D or 2D electorate? That'd be fun)
+
+One issue with this idea is that it would fail for situations where two candidates are similar ideologically,
+but one has far more support than the other.
+Because if one had 40% and the other had 5%, the model would assume that whatever minor ideological space
+there is between them represents some huge revelation about the electorate's ideological makeup.
+This, essentially, is the consequence of the fact that voters don't always vote for the closest ideological
+candidate (and for good reasons oftentimes).
+So, to get over this fact, maybe instead of extruding the Voronoi polygons around each candidate as if their
+support was uniform in that area and exists nowhere else, we would use some sort of distribution centered
+at their ideological core.
+(This completely upends my fun Vornoi idea :( but whetever)
+(This also runs into the same problem of the normal distribution running into the bounds of the model;
+I need a more applicable distribution)
+The height of that distrubtion would presumably be determined by the overall support of the candidate, but
+past that I really have no idea at the moment.
+(Also, these field models - Voronoi and distributions - only work with FPTP; do we include other kinds of
+polling inputs for these?)
+
+After all of that insane calulcation, do I still want to randomize the entire electorate every time?
+I also wanted to save the electorate for a simulation somehow (so you could run it again w/ different
+candidates for example), so that would definitely complicate things.
+How do we even randomize things at all for the distributions-on-a-field model?
+
+I'll get to how this would work for each electoral system later.

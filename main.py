@@ -28,7 +28,7 @@ def randomizedIteration(polling, stdev):
     results[i] /= newTotal
   return results
 
-#figure out the winner of a plurality (FTPT) election from results
+#figure out the winner of a plurality (FPTP) election from results
 def runPlurality(results):
   maxIndex = -1;
   maxValue = 0.0;
@@ -62,15 +62,15 @@ def printResults(names, results):
   print()
 
 #read data from file to run simulation
-def readFromFile(filename, n):
+def readFromFile(filename, num):
   file = open(filename, 'r')
-  num = int(file.readline())
-  for i in range(num):
+  n = int(file.readline())
+  for i in range(n):
     names = file.readline().split(',')
     names[-1] = names[-1][:-1]
-    nums = [int(x) for x in file.readline().split(',')]
+    polling = [int(x) for x in file.readline().split(',')]
     sample = int(file.readline())
-    printResults(names, runIterations(nums, n, sample))
+    printResults(names, runIterations(polling, num, sample))
   file.close()
 
 print("Color Parties Example")
