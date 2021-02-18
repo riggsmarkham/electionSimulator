@@ -74,6 +74,6 @@ def readFromFile(filename, num):
   file.close()
 
 print("Color Parties Example")
-readFromFile('colors.txt', NUM)
+readFromFile('data/colors.txt', NUM)
 print("NYC Mayoral Election")
-readFromFile('nycmayor.txt',NUM)
+readFromFile('data/nycmayor.txt',NUM)
