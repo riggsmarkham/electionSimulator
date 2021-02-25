@@ -70,7 +70,7 @@ Current To-Do Lists
 Algorithmic steps here:
 
 [X] 1. Initial FPTP-only prototype w/ normal polls
-[ ] 2. Revamp code to use numpy & correct error calc
+[X] 2. Revamp code to use numpy & correct error calc
 [ ] 3. Test polling algorithms using past data & Brier scores
 [ ] 4. Model based on preference lists to do FPTP and IRV (maybe top 2 runoff too)
 [ ] 5. Modify preference list to work for approval as well

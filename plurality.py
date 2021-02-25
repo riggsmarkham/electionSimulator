@@ -4,7 +4,7 @@ import numpy as np
 def normalizePolling(polling):
   return np.array(polling/np.sum(polling))
 
-#calculate standard deviation from sample size
+#calculate standard deviation for a sample proportion
 def calcSTDEV(x, sample):
   return np.sqrt(((1-x)*x)/sample)
 
@@ -34,6 +34,7 @@ def runIterations(polling, num, sample):
     winList[winner] += 1
   return winList
 
+#read data from a file
 def readFromFile(filename):
   data = []
   with open(filename) as infile:
@@ -47,6 +48,7 @@ def readFromFile(filename):
         data.append([np.array(names), np.array(polls), num])
   return data
 
+#print results of election simulation
 def printResults(names, results):
   nameLength = len(max(names, key=len))
   total = np.sum(results)
@@ -55,6 +57,7 @@ def printResults(names, results):
     print(s.format(names[i],int(results[i])/total))
   print()
 
+#actually run election simulation given data from file
 def runElection(npData, num):
   for el in npData:
     printResults(el[0], runIterations(el[1], num, el[2]))
