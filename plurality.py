@@ -5,13 +5,14 @@ def normalizePolling(polling):
   return np.array(polling/np.sum(polling))
 
 #calculate standard deviation from sample size
-def calcSTDEV(sample):
-  return 1/np.sqrt(sample)
+def calcSTDEV(x, sample):
+  return np.sqrt(((1-x)*x)/sample)
 
 #generate randomized iteration
-def randomizedIteration(polling, stdev):
+def randomizedIteration(polling, sample):
   results = []
   for x in polling:
+    stdev = calcSTDEV(x, sample)
     num = np.random.normal(x,stdev)
     while num < 0 or num > 1:
       num = np.random.normal(x,stdev)
@@ -25,11 +26,10 @@ def runPlurality(results):
 
 #run num iterations of a pluraity election
 def runIterations(polling, num, sample):
-  stdev = calcSTDEV(sample)
   normalized = normalizePolling(polling)
   winList = np.zeros(len(polling))
   for i in range(num):
-    results = randomizedIteration(normalized, stdev)
+    results = randomizedIteration(normalized, sample)
     winner = runPlurality(results)
     winList[winner] += 1
   return winList
