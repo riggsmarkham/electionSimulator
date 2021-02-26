@@ -24,6 +24,23 @@ def randomizedIteration(polling, sample):
 def runPlurality(results):
   return np.argmax(results)
 
+def runIRV(partyList, prefList, pointerList, results):
+  partySums = np.array(len(partyList))
+  while(np.count_nonzero(~np.isnan(partySums)) != len(results) - 1):
+    index = np.nanargmin(partySums)
+    for i in range(len(prefList)):
+      if (pointerList[i] < len(prefList[i])) and (prefList[i][pointerList[i]] == partyList[index]):
+        pointerList[i] += 1
+        if(pointerList[i] < len(prefList[i])):
+          newIndex = np.where(partyList == prefList[i][pointerList[i]])
+          partySums[newIndex] += results[i]
+        partySums[index] -= results[i]
+    if(partySums[index] == 0):
+      partySums[index] = np.isnan
+    else:
+      raise ValueError
+  return np.where(partySums != np.isnan)
+
 #run num iterations of a pluraity election
 def runIterations(polling, num, sample):
   normalized = normalizePolling(polling)
@@ -58,6 +75,6 @@ def printResults(names, results):
   print()
 
 #actually run election simulation given data from file
-def runElection(npData, num):
+def runElections(npData, num):
   for el in npData:
     printResults(el[0], runIterations(el[1], num, el[2]))

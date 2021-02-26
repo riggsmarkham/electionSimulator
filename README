@@ -98,3 +98,11 @@ Presentation steps here:
 [ ] 4. Figure out how to present 2D and 3D representations of field models
 [ ] 5. Present analysis based on things like Condorcet cycles
 [ ] 6. Make website look good
+
+Function outline:
+  readFromFile
+  runElections
+  runIterations
+    randomizedIteration (normalizePolling, calcSTDEV)
+    runPlurality or runIRV
+  printResults
