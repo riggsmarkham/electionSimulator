@@ -26,11 +26,16 @@ def randomizedIteration(polling, sample):
   return np.array(results/np.sum(results))
 
 #figure out the winner of a First past the post election from results
-def runFPTP(results):
-  return np.argmax(results)
+def runFPTP(partyList, results, depth):
+  prefList = constructPrefList(partyList, depth)
+  partySums = np.zeros(len(partyList))
+  for i in range(len(results)):
+    index = np.where(partyList == prefList[i][0])
+    partySums[index] += results[i]
+  return np.argmax(partySums)
 
 #construct the preference list for RCV iteration
-def constructPrefList(partyList,depth):
+def constructPrefList(partyList, depth):
   return np.asarray(list(permutations(partyList,depth)))
 
 #figure out the winner of a ranked choice voting election
@@ -65,12 +70,12 @@ def runRCV(partyList, results, depth):
   return np.argmax(partySums)
 
 #run num iterations of a fptp election
-def runFPTPIterations(polling, num, sample):
+def runFPTPIterations(polling, partyList, num, sample, depth):
   normalized = normalizePolling(polling)
-  winList = np.zeros(len(polling))
+  winList = np.zeros(len(partyList))
   for i in range(num):
     results = randomizedIteration(normalized, sample)
-    winner = runFPTP(results)
+    winner = runFPTP(partyList, results, depth)
     winList[winner] += 1
   return winList
 
@@ -139,7 +144,7 @@ def printResults(names, results):
 def runFPTPElections(npData, num):
   t = time.process_time()
   for el in npData:
-    printResults(el[0], runFPTPIterations(el[1], num, el[2]))
+    printResults(el[0], runFPTPIterations(el[1], el[0], num, el[2], el[3]))
   print("Average time to simulate FPTP election: " + str((time.process_time() - t)/len(npData)))
   print()
 
@@ -155,7 +160,9 @@ print("Color Parties FPTP Example")
 runFPTPElections(readFromFile('data/colors.txt'), NUM)
 print("NYC Mayoral Election")
 runFPTPElections(readFromFile('data/nycmayor.txt'), NUM)
-print("Color Parties RCV Example")
+print("Color Parties Examples")
 runRCVElections(readFromFile('data/rankedpreferences.txt'), NUM)
+runFPTPElections(readFromFile('data/rankedpreferences.txt'), NUM)
 print("Canada?")
 runRCVElections(readFromFile2ndChoices('data/2ndchoice.txt'), NUM)
+runFPTPElections(readFromFile2ndChoices('data/2ndchoice.txt'), NUM)
