@@ -72,7 +72,7 @@ Algorithmic steps here:
 [X] 1. Initial FPTP-only prototype w/ normal polls
 [X] 2. Revamp code to use numpy & correct error calc
 [ ] 3. Test polling algorithms using past data & Brier scores
-[ ] 4. Model based on preference lists to do FPTP and IRV (maybe top 2 runoff too)
+[X] 4. Model based on preference lists to do FPTP and IRV (maybe top 2 runoff too)
 [ ] 5. Modify preference list to work for approval as well
 [ ] 6. Model based on pairs to do Condorcet
 [ ] 7. Revamp error calculation (538, time until election)
@@ -98,11 +98,3 @@ Presentation steps here:
 [ ] 4. Figure out how to present 2D and 3D representations of field models
 [ ] 5. Present analysis based on things like Condorcet cycles
 [ ] 6. Make website look good
-
-Function outline:
-  readFromFile
-  runElections
-  runIterations
-    randomizedIteration (normalizePolling, calcSTDEV)
-    runPlurality or runIRV
-  printResults

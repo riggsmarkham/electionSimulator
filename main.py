@@ -25,6 +25,10 @@ def randomizedIteration(polling, sample):
   results = np.array(results)
   return np.array(results/np.sum(results))
 
+#construct the preference list for RCV iteration
+def constructPrefList(partyList, depth):
+  return np.asarray(list(permutations(partyList,depth)))
+
 #figure out the winner of a First past the post election from results
 def runFPTP(partyList, results, depth):
   prefList = constructPrefList(partyList, depth)
@@ -33,10 +37,6 @@ def runFPTP(partyList, results, depth):
     index = np.where(partyList == prefList[i][0])
     partySums[index] += results[i]
   return np.argmax(partySums)
-
-#construct the preference list for RCV iteration
-def constructPrefList(partyList, depth):
-  return np.asarray(list(permutations(partyList,depth)))
 
 #figure out the winner of a ranked choice voting election
 def runRCV(partyList, results, depth):
@@ -69,6 +69,33 @@ def runRCV(partyList, results, depth):
       raise ValueError("didn't reduce to zero")
   return np.argmax(partySums)
 
+def runTopTwo(partyList, results, depth):
+  prefList = constructPrefList(partyList, depth)
+  pointerList = np.zeros(len(prefList), dtype=int)
+  partySums = np.zeros(len(partyList))
+  for i in range(len(results)):
+    index = np.where(partyList == prefList[i][0])
+    partySums[index] += results[i]
+  temp = np.argpartition(-partySums, 2)
+  result_args = temp[:2]
+  topParties = [partyList[result_args[0
+  ]],partyList[result_args[1]]]
+  for i in range(len(prefList)):
+    if(prefList[i][0] not in topParties):
+      pointerList[i] += 1
+      trying = pointerList[i] < len(prefList[i])
+      while(trying):
+        if(prefList[i][pointerList[i]] in topParties):
+          partySums[np.where(partyList == prefList[i][pointerList[i]])] += results[i]
+          trying = False
+        else:
+          pointerList += 1
+          trying = pointerList[i] < len(prefList[i])
+      partySums[np.where(partyList == prefList[i][0])] -= results[i]
+  return np.argmax(partySums)
+
+
+
 #run num iterations of a fptp election
 def runFPTPIterations(polling, partyList, num, sample, depth):
   normalized = normalizePolling(polling)
@@ -86,6 +113,15 @@ def runRCVIterations(polling, partyList, num, sample, depth):
   for i in range(num):
     results = randomizedIteration(normalized, sample)
     winner = runRCV(partyList, results, depth)
+    winList[winner] += 1
+  return winList
+
+def runTopTwoIterations(polling, partyList, num, sample, depth):
+  normalized = normalizePolling(polling)
+  winList = np.zeros(len(partyList))
+  for i in range(num):
+    results = randomizedIteration(normalized, sample)
+    winner = runTopTwo(partyList, results, depth)
     winList[winner] += 1
   return winList
 
@@ -107,7 +143,7 @@ def readFromFile(filename):
   return data
 
 #read a file with 2nd choice picks
-def readFromFile2ndChoices(filename):
+def readFromFileNested(filename):
   data = []
   with open(filename) as infile:
       lines = infile.readlines()
@@ -142,27 +178,41 @@ def printResults(names, results):
 
 #actually run fptp simulation given data from file
 def runFPTPElections(npData, num):
+  print("FPTP Elections\n")
   t = time.process_time()
   for el in npData:
     printResults(el[0], runFPTPIterations(el[1], el[0], num, el[2], el[3]))
-  print("Average time to simulate FPTP election: " + str((time.process_time() - t)/len(npData)))
+  print("Average time: " + str((time.process_time() - t)/len(npData)))
   print()
 
 #actually run rcv simulation given data from file
 def runRCVElections(npData, num):
+  print("RCV Elections\n")
   t = time.process_time()
   for el in npData:
     printResults(el[0], runRCVIterations(el[1], el[0], num, el[2], el[3]))
-  print("Average time to simulate RCV election: " + str((time.process_time() - t)/len(npData)))
+  print("Average time: " + str((time.process_time() - t)/len(npData)))
   print()
 
-print("Color Parties FPTP Example")
-runFPTPElections(readFromFile('data/colors.txt'), NUM)
-print("NYC Mayoral Election")
-runFPTPElections(readFromFile('data/nycmayor.txt'), NUM)
-print("Color Parties Examples")
-runRCVElections(readFromFile('data/rankedpreferences.txt'), NUM)
-runFPTPElections(readFromFile('data/rankedpreferences.txt'), NUM)
-print("Canada?")
-runRCVElections(readFromFile2ndChoices('data/2ndchoice.txt'), NUM)
-runFPTPElections(readFromFile2ndChoices('data/2ndchoice.txt'), NUM)
+def runTopTwoElections(npData, num):
+  print("Top Two Elections\n")
+  t = time.process_time()
+  for el in npData:
+    printResults(el[0], runTopTwoIterations(el[1], el[0], num, el[2], el[3]))
+  print("Average time: " + str((time.process_time() - t)/len(npData)))
+  print()
+
+def doAllSystems(name, filename, num, nested):
+  print(name)
+  if(not nested):
+    data = readFromFile(filename)
+  else:
+    data = readFromFileNested(filename)
+  runFPTPElections(data, num)
+  runRCVElections(data, num)
+  runTopTwoElections(data, num)
+
+doAllSystems('Quick Color Parties', 'data/colors.txt', NUM, False)
+doAllSystems('NYC Mayor', 'data/nycmayor.txt', NUM, False)
+doAllSystems('Big Color Parties','data/rankedpreferences.txt', NUM, False)
+doAllSystems('Canada?', 'data/2ndchoice.txt', NUM, True)
