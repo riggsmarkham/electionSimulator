@@ -69,6 +69,7 @@ def runRCV(partyList, results, depth):
       raise ValueError("didn't reduce to zero")
   return np.argmax(partySums)
 
+#figure out winner of a top two election
 def runTopTwo(partyList, results, depth):
   prefList = constructPrefList(partyList, depth)
   pointerList = np.zeros(len(prefList), dtype=int)
@@ -94,8 +95,6 @@ def runTopTwo(partyList, results, depth):
       partySums[np.where(partyList == prefList[i][0])] -= results[i]
   return np.argmax(partySums)
 
-
-
 #run num iterations of a fptp election
 def runFPTPIterations(polling, partyList, num, sample, depth):
   normalized = normalizePolling(polling)
@@ -116,6 +115,7 @@ def runRCVIterations(polling, partyList, num, sample, depth):
     winList[winner] += 1
   return winList
 
+#run num iterations of a top two election
 def runTopTwoIterations(polling, partyList, num, sample, depth):
   normalized = normalizePolling(polling)
   winList = np.zeros(len(partyList))
@@ -154,13 +154,15 @@ def readFromFileNested(filename):
         names = lines[lineNum].split(',')
         names[-1] = names[-1][:-1]
         firstPolls = np.array(list(map(int,lines[lineNum + 1][:-1].split(','))))
+        if(np.any(np.less(firstPolls,0))):
+          raise ValueError("negative input poll")
         polls = np.empty(len(firstPolls)*(len(firstPolls)-1))
         for j in range(len(firstPolls)):
           secondPolls = np.array(list(map(int,lines[lineNum + 2 + j][:-1].split(','))))
+          if(np.any(np.less(secondPolls,0))):
+            raise ValueError("negative input poll")
           normalized = normalizePolling(secondPolls)
           polls[len(normalized)*j:len(normalized)*(j+1)] = normalized * firstPolls[j]
-        # if(np.any(np.less(polls,0))):
-        #   raise ValueError("negative input poll")
         lineNum += 3 + len(firstPolls)
         num = int(lines[lineNum - 1])
         depth = int(lines[lineNum])
@@ -194,6 +196,7 @@ def runRCVElections(npData, num):
   print("Average time: " + str((time.process_time() - t)/len(npData)))
   print()
 
+#actually runs a top two runoff simulation given data from file
 def runTopTwoElections(npData, num):
   print("Top Two Elections\n")
   t = time.process_time()
@@ -202,6 +205,7 @@ def runTopTwoElections(npData, num):
   print("Average time: " + str((time.process_time() - t)/len(npData)))
   print()
 
+#runs all the electoral systems for a particular file
 def doAllSystems(name, filename, num, nested):
   print(name)
   if(not nested):
@@ -212,7 +216,7 @@ def doAllSystems(name, filename, num, nested):
   runRCVElections(data, num)
   runTopTwoElections(data, num)
 
-doAllSystems('Quick Color Parties', 'data/colors.txt', NUM, False)
+doAllSystems('Quick Color Parties', 'data/simplecolors.txt', NUM, False)
 doAllSystems('NYC Mayor', 'data/nycmayor.txt', NUM, False)
-doAllSystems('Big Color Parties','data/rankedpreferences.txt', NUM, False)
-doAllSystems('Canada?', 'data/2ndchoice.txt', NUM, True)
+doAllSystems('Big Color Parties','data/rankedcolors.txt', NUM, False)
+doAllSystems('Canada?', 'data/canada.txt', NUM, True)
